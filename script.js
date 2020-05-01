@@ -1,12 +1,12 @@
-const InfoLabel = props => React.createElement("div", { id: props.id }, React.createElement("span", null, props.text));
-const InfoValue = props => React.createElement("input", { id: props.id, value: props.value });
+const InfoLabel = props => React.createElement("div", { id: props.id, className: "col-4" }, React.createElement("span", null, props.text));
+const InfoValue = props => React.createElement("input", { id: props.id, className: "col-1", value: props.value });
 
 const Arrow = props => {
   const isUp = props.up;
   const componentName = `${props.id}-${isUp ? "increment" : "decrement"}`;
   const className = `fa-angle-double-${isUp ? "up" : "down"}`;
   return (
-    React.createElement("button", { onClick: props.handleClick },
+    React.createElement("button", { onClick: props.handleClick, className: "col-1 btn" },
     React.createElement("i", { id: componentName, className: `fas ${className}` })));
 
 
@@ -14,27 +14,28 @@ const Arrow = props => {
 
 const Setting = (props) =>
 React.createElement("div", { className: "row" },
+React.createElement("div", { className: "col-2" }),
 React.createElement(InfoLabel, { id: `${props.id}-label`, text: `${props.text} Length` }),
-React.createElement(InfoValue, { id: `${props.id}-length`, value: props.value }),
-React.createElement(Arrow, { up: true, id: props.id, handleClick: props.upClick }),
-React.createElement(Arrow, { up: false, id: props.id, handleClick: props.downClick }));
+React.createElement(InfoValue, { id: `${props.id}-length`, value: props.value, className: "col-4" }),
+React.createElement(Arrow, { up: true, id: props.id, handleClick: props.upClick, className: "" }),
+React.createElement(Arrow, { up: false, id: props.id, handleClick: props.downClick, className: "" }));
 
 
 const SessionLabel = (props) =>
-React.createElement("div", { className: "row" },
-React.createElement("span", { id: "timer-label" }, props.isSession ? "Session" : "Break"));
-
+React.createElement("span", { id: "timer-label", className: "col-3" }, props.isSession ? "Session" : "Break");
 
 const Clock = (props) =>
 React.createElement("div", { className: "row" },
-React.createElement("input", { id: "time-left", value: new Date(props.remaining * 1000).toISOString().substr(14, 5) }),
-React.createElement("button", { id: "start_stop" },
+React.createElement("div", { className: "col-2" }),
+React.createElement(SessionLabel, { isSession: props.isSession }),
+React.createElement("input", { id: "time-left", className: "col-2", value: new Date(props.remaining * 1000).toISOString().substr(14, 5) }),
+React.createElement("button", { id: "start_stop", onClick: props.onPlayPauseClick, className: "col-1 btn" },
 React.createElement("i", { className: "fas fa-play" })),
 
-React.createElement("button", { id: "reset", onClick: props.onResetClick },
+React.createElement("button", { id: "reset", onClick: props.onResetClick, className: "col-1 btn" },
 React.createElement("i", { className: "fas fa-sync" })),
 
-React.createElement("audio", { id: "beep", src: "https://goo.gl/65cBl1" }));
+React.createElement("audio", { id: "beep", src: "https://s3.amazonaws.com/freecodecamp/drums/Heater-2.mp3" }));
 
 
 class PomodoroApp extends React.Component
@@ -111,6 +112,8 @@ class PomodoroApp extends React.Component
     },
     this.clockRunning);
 
+
+    event.preventDefault();
   }
 
   handleDecrementBreak()
@@ -118,6 +121,7 @@ class PomodoroApp extends React.Component
     this.setState(state => ({
       break: state.break > 0 && state.break < 60 ? state.break - 1 : state.break }));
 
+    event.preventDefault();
   }
 
   handleIncrementBreak()
@@ -125,6 +129,7 @@ class PomodoroApp extends React.Component
     this.setState(state => ({
       break: state.break > 0 && state.break < 60 ? state.break + 1 : state.break }));
 
+    event.preventDefault();
   }
 
   handleDecrementSession()
@@ -132,6 +137,7 @@ class PomodoroApp extends React.Component
     this.setState(state => ({
       session: state.session > 0 && state.session < 60 ? state.session - 1 : state.session }));
 
+    event.preventDefault();
   }
 
   handleIncrementSession()
@@ -139,6 +145,7 @@ class PomodoroApp extends React.Component
     this.setState(state => ({
       session: state.session > 0 && state.session < 60 ? state.session + 1 : state.session }));
 
+    event.preventDefault();
   }
 
   handleReset()
@@ -153,17 +160,19 @@ class PomodoroApp extends React.Component
       inPlay: false });
 
 
-    e.preventDefault();
+    event.preventDefault();
   }
 
   render()
   {
     return (
       React.createElement("div", { className: "container" },
-      React.createElement(Setting, { id: "break", text: "Break", value: this.state.break, upClick: this.state.handleIncrementBreak, downClick: this.state.handleDecrementBreak }),
-      React.createElement(Setting, { id: "session", text: "Session", value: this.state.session, upClick: this.state.handleIncrementSession, downClick: this.state.handleDecrementSession }),
-      React.createElement(SessionLabel, { isSession: this.state.isSession }),
-      React.createElement(Clock, { remaining: this.state.remaining, onResetClick: this.state.handleReset })));
+      React.createElement("div", { className: "row" },
+      React.createElement("h1", null, "Pomodoro timer")),
+
+      React.createElement(Setting, { id: "break", text: "Break", value: this.state.break, upClick: this.handleIncrementBreak, downClick: this.handleDecrementBreak }),
+      React.createElement(Setting, { id: "session", text: "Session", value: this.state.session, upClick: this.handleIncrementSession, downClick: this.handleDecrementSession }),
+      React.createElement(Clock, { isSession: this.state.isSession, remaining: this.state.remaining, onResetClick: this.handleReset, onPlayPauseClick: this.handlePlayPause })));
 
 
   }}
